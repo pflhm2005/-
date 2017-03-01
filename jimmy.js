@@ -3,13 +3,10 @@
         arr = [];
 
     //缩写一下
-    function getId(str) { return $.getElementById(str); }
-
-    function getTag(str) { return $.getElementsByTagName(str); }
-
-    function getClass(str) { return $.getElementsByClassName(str); }
-
-    function advSear(str) { return $.querySelectorAll(str); }
+    var getId = str => $.getElementById(str);
+    var getTag = str => $.getElementsByTagName(str);
+    var getClass = str => $.getElementsByClassName(str);
+    var advSear = str => $.querySelectorAll(str);
 
     //入口函数
     var jimmy = function(ele) {
@@ -77,15 +74,13 @@
             lastnum = 0,
             timer = null;
 
-
-
         var _S = `position: relative;
                 margin:0 auto;
                 overflow: hidden;
                 left: 0;
                 top: 0;
-                user-select:none;`
-        _btn = `font-family: Microsoft yahei;
+                user-select:none;`,
+            _btn = `font-family: Microsoft yahei;
                 position: absolute;
                 top: 50%;
                 transform: translateY(-50%);
@@ -147,7 +142,7 @@
                 this.btn_event();
             },
             size_init: function() {
-                S.style = _S + 'width:' + this.width + 'px;height:' + this.height + 'px;';
+                S.style = `${_S}width:${this.width}px;height:${this.height}px;`;
             },
             css_init: function() {
                 //由于字体大小百分比是根据em定义 直接写百分比无法动态响应
@@ -155,8 +150,8 @@
                 var per = 12,
                     per2 = 35,
                     dots = '';
-                btn_l.style = _btn + 'left: -10%;text-indent: -1px;font-size:' + this.height / per + 'px';
-                btn_r.style = _btn + 'right:-10%;font-size:' + this.height / per + 'px';
+                btn_l.style = `${_btn}left: -10%;text-indent:-1px;font-size: ${this.height / per}px`;
+                btn_r.style = `${_btn}right:-10%;font-size:${this.height / per}px`;
 
                 //设定user-select:none 所以箭头看起来像字体图标 
                 btn_l.innerHTML = '\<';
@@ -164,7 +159,7 @@
 
                 pic.style = _pic;
                 jimmy.fn.each(pic_li, function(i, value) {
-                    value.style = _pic + 'opacity:0;position:absolute;list-style:none;';
+                    value.style = `${_pic}opacity:0;position:absolute;list-style:none;`;
                 });
 
                 //动态添加小圆点和样式
@@ -175,7 +170,7 @@
                 dot.innerHTML = dots;
                 dot_li = dot.children;
                 jimmy.fn.each(dot_li, (i, value) => {
-                    value.style = _dot_li + 'width:' + this.height / per2 + 'px;height:' + this.height / per2 + 'px;';
+                    value.style = `${_dot_li}width:${this.height / per2}px;height:${this.height / per2}px;`;
                 });
             },
             load_init: function() {
@@ -243,6 +238,19 @@
     jimmy.fn.init.prototype = jimmy.fn;
 
     //简化符号
-    window._ = jimmy;
+    var _jimmy = window.jimmy,
+        __ = window._;
+    jimmy.noConflict = function(deep) {
+        if (window._ === jimmy) {
+            window._ = __;
+        }
+        if (deep && window.jimmy === jimmy) {
+            window.jimmy = _jimmy;
+        }
+        return jimmy;
+    }
 
+    window._ = window.jimmy = jimmy;
+
+    return jimmy;
 })(window, document);
