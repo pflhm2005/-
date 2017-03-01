@@ -3,9 +3,7 @@
 
 - html格式如下：
 
-  ​
-
-  ```html
+```html
   <div id="div">
           <div></div>
           <div></div>
@@ -16,21 +14,22 @@
               <img src="image/03.jpg">
           </div>
   </div>
-  ```
+```
 
 
 
 - JS调用方式如下：
 
-  ​
-
   ```javascript
+  //可以使用_('.div')、_('div)，但是必须保证选取的节点唯一
   _('#div').slide();
   ```
 
 
 
-- 目前原生方法支持3个参数，以对象形式传入：
+
+
+- 支持5个参数，以对象形式传入：
 
   ​
 
@@ -41,9 +40,13 @@
     widht:'500px',	
     height:'500px',
     //设定是否自动轮播或自动轮播时间(ms)
-    autoplay:false
+    autoplay:false,
+    dot:true,
+    arrow:true
   });
   ```
+
+
 
 
 

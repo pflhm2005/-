@@ -120,6 +120,8 @@
         function Slide() {
             this.width = isNaN(Number(_obj.width)) ? '600' : _obj.width;
             this.height = isNaN(Number(_obj.height)) ? '450' : _obj.height;
+            this.arrow = _obj.arrow !== false;
+            this.dot = _obj.dot !== false;
             this.autoplay = typeof _obj.autoplay === "number" ? _obj.autoplay : _obj.autoplay === false ? false : 2000;
 
             //样式初始化
@@ -169,6 +171,8 @@
                 dot_li[0].style.opacity = 1;
                 pic_li[0].style.opacity = 1;
                 !!this.autoplay && (timer = this.auto(this.autoplay));
+                !this.dot && (dot.style.display = 'none');
+                !this.arrow && (btn_l.style.display = 'none') && (btn_r.style.display = 'none');
             },
             dot_event: function() {
                 var count = len;
