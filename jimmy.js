@@ -132,34 +132,45 @@
 
         Slide.prototype = {
             constructor: Slide,
-            //包含宽高、样式、初始化
+            //包含宽高、style样式、加载初始化
             ele_init: function() {
                 this.size_init();
                 this.css_init();
                 this.load_init();
             },
             event_init: function() {
+                //父元素hover事件
+                this.content_event();
+                //小圆点事件
                 this.dot_event();
+                //按钮事件
                 this.btn_event();
             },
             size_init: function() {
                 S.style = _S + 'width:' + this.width + 'px;height:' + this.height + 'px;';
             },
             css_init: function() {
+                //由于字体大小百分比是根据em定义 直接写百分比无法动态响应
+                //利用宽度与一个比例参数进行动态修正大小
                 var per = 12,
                     per2 = 35,
                     dots = '';
                 btn_l.style = _btn + 'left: -10%;text-indent: -1px;font-size:' + this.height / per + 'px';
                 btn_r.style = _btn + 'right:-10%;font-size:' + this.height / per + 'px';
+
+                //设定user-select:none 所以箭头看起来像字体图标 
                 btn_l.innerHTML = '\<';
                 btn_r.innerHTML = '\>';
+
                 pic.style = _pic;
                 jimmy.fn.each(pic_li, function(i, value) {
                     value.style = _pic + 'opacity:0;position:absolute;list-style:none;';
                 });
+
+                //动态添加小圆点和样式
                 dot.style = _dot;
                 for (var i = 0; i < len; i++) {
-                    dots += "<span>" + i + "</span>"
+                    dots += "<span>" + i + "</span>";
                 }
                 dot.innerHTML = dots;
                 dot_li = dot.children;
@@ -168,20 +179,15 @@
                 });
             },
             load_init: function() {
+                //默认显示第一张图片 点亮第一个圆点 并根据参数设置样式
                 dot_li[0].style.opacity = 1;
                 pic_li[0].style.opacity = 1;
                 !!this.autoplay && (timer = this.auto(this.autoplay));
                 !this.dot && (dot.style.display = 'none');
                 !this.arrow && (btn_l.style.display = 'none') && (btn_r.style.display = 'none');
             },
-            dot_event: function() {
-                var count = len;
-                dot.onmouseover = () => {
-                    num = parseInt(event.target.innerHTML);
-                    this.change();
-                }
-            },
-            btn_event: function() {
+            //父元素hover
+            content_event: function() {
                 S.onmouseover = () => {
                     clearInterval(timer);
                     btn_l.style.left = 0;
@@ -192,6 +198,18 @@
                     btn_l.style.left = '-10%';
                     btn_r.style.right = '-10%';
                 };
+            },
+            //圆点hover事件
+            dot_event: function() {
+                var count = len;
+                //事件委托
+                dot.onmouseover = () => {
+                    num = parseInt(event.target.innerHTML);
+                    this.change();
+                }
+            },
+            //按钮点击事件
+            btn_event: function() {
                 btn_l.onclick = () => {
                     num = num === 0 ? len - 1 : num - 1;
                     this.change();
@@ -201,6 +219,7 @@
                     this.change();
                 }
             },
+            //配合transition真是相当简单啊
             change: function() {
                 pic_li[num].style.opacity = 1;
                 pic_li[lastnum].style.opacity = 0;
@@ -208,14 +227,15 @@
                 dot_li[lastnum].style.opacity = 0.3;
                 lastnum = num;
             },
+            //自动轮播 返回定时器ID
             auto: function(time) {
                 return !!time && setInterval(() => {
                     btn_r.click();
                 }, time);
             }
-        }
-
-
+        };
+        //返回一个实例
+        //主要是为了结构清晰 new会自动调用函数
         new Slide(obj);
     }
 
