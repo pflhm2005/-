@@ -183,8 +183,9 @@
 
         //构造函数
         function Slide() {
-            this.width = isNaN(Number(_obj.width)) ? '600' : _obj.width;
-            this.height = isNaN(Number(_obj.height)) ? '450' : _obj.height;
+
+            this.width = isNaN(parseInt(_obj.width)) ? '600px' : parseInt(_obj.width);
+            this.height = isNaN(parseInt(_obj.height)) ? '450px' : parseInt(_obj.height);
             this.arrow = _obj.arrow !== false;
             this.dot = _obj.dot !== false;
             this.autoplay = typeof _obj.autoplay === "number" ? _obj.autoplay : _obj.autoplay === false ? false : 2000;
