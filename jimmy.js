@@ -26,6 +26,9 @@
 
     //初始化
     jimmy.fn.init = function(ele, ctx) {
+        if (ele.nodeType) {
+            return this.push(ele);
+        }
         ele = rquickExpr.exec(ele);
         if (match = ele[1]) {
             return this.push(getId(match));
@@ -54,8 +57,67 @@
             for (var i = 0; i < arr.length; i++) {
                 callback.call(arr[i], i, arr[i]);
             }
+        },
+        //是否是定位元素
+        isPosition: function(str) {
+            return str === 'relative' || str === 'abosulte' || str === 'fixed';
+        },
+        //获取第一个定位父元素宽高
+        getPositionPWidth: function(ele) {
+            var p = ele.parentNode;
+            while (!this.isPosition(window.getComputedStyle(p).position)) {
+                p = p.parentNode;
+            }
+            return [window.getComputedStyle(p).width, window.getComputedStyle(p).height];
         }
     })
+
+    //动画函数
+    jimmy.fn.animate = function(obj, duration) {
+        var ele = this[0];
+        clearInterval(ele.timer);
+        ele.timer = setInterval(() => {
+            var flag = true;
+            for (var key in obj) {
+                var target = obj[key],
+                    per = duration / 20,
+                    current = parseFloat(window.getComputedStyle(ele, null)[key]);
+                //处理透明度
+                if (key === 'opacity') {
+                    var step = ((target - current) / per) * 100;
+                    step = target - current > 0 ? Math.ceil(step) : Math.floor(step);
+                    current += (step / 100);
+                    ele.style[key] = current;
+                }
+                //处理百分比 
+                else if (target.indexOf('%')) {
+                    ele.pWidth = ele.pWidth || parseFloat(this.getPositionPWidth(ele)[0]);
+                    current = (current / ele.pWidth)
+                    console.log(current);
+                    // target = parseInt(target);
+                    // var step = ((target - current) / per) * 100;
+                    // step = target - current > 0 ? Math.ceil(step) : Math.floor(step);
+                    // current += (step / 100);
+                    ele.style[key] = current + '%';
+                }
+                //处理px单位 
+                else {
+
+                    var step = (target - current) / per;
+                    step = target - current > 0 ? Math.ceil(step) : Math.floor(step);
+                    current += step;
+                    ele.style[key] = current + 'px';
+                }
+                if (target != current) {
+                    flag = false;
+                }
+            }
+            if (flag) {
+                console.log(1);
+                clearInterval(ele.timer);
+            }
+        }, 20);
+    }
 
     //轮播图
     jimmy.fn.slide = function(obj) {
@@ -90,15 +152,15 @@
                 height: 12%;
                 background-color: rgba(0, 0, 0, 0.8);
                 text-align: center;
-                color: white;
-                transition:all 1s;`,
+                transition:all 1s;
+                color: white;`,
             _pic = `left: 0;
                 top: 0;
                 width: 100%;
                 height: 100%;
                 margin: 0;
-                padding: 0;
-                transition:all 0.6s;`,
+                
+                padding: 0;`,
             _dot = `z-index: 10;
                 position: relative;
                 top: 80%;
@@ -216,8 +278,10 @@
             },
             //配合transition真是相当简单啊
             change: function() {
-                pic_li[num].style.opacity = 1;
-                pic_li[lastnum].style.opacity = 0;
+                _(pic_li[num]).animate({ opacity: 1 }, 500);
+                _(pic_li[lastnum]).animate({ opacity: 0 }, 500);
+                // pic_li[num].style.opacity = 1;
+                // pic_li[lastnum].style.opacity = 0;
                 dot_li[num].style.opacity = 1;
                 dot_li[lastnum].style.opacity = 0.3;
                 lastnum = num;
