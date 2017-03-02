@@ -89,20 +89,22 @@
                     current += (step / 100);
                     ele.style[key] = current;
                 }
-                //处理百分比 
+                //处理百分比
+                //这个支持有问题 暂时不能用
+                //修复 但是duration是有问题的 
                 else if (target.indexOf('%')) {
                     ele.pWidth = ele.pWidth || parseFloat(this.getPositionPWidth(ele)[0]);
-                    current = (current / ele.pWidth)
-                    console.log(current);
-                    // target = parseInt(target);
-                    // var step = ((target - current) / per) * 100;
-                    // step = target - current > 0 ? Math.ceil(step) : Math.floor(step);
-                    // current += (step / 100);
+                    //因为后面要加%单位 这里要先乘以100 坑爹啊
+                    //已经不知道怎么注释了 toFix返回的是字符串 只能这样强制获取2位小数
+                    current = (Math.floor((current / ele.pWidth) * 10000)) / 100;
+                    target = parseInt(target);
+                    var step = ((target - current) / per) * 100;
+                    step = target - current > 0 ? Math.ceil(step) : Math.floor(step);
+                    current += (step / 100);
                     ele.style[key] = current + '%';
                 }
                 //处理px单位 
                 else {
-
                     var step = (target - current) / per;
                     step = target - current > 0 ? Math.ceil(step) : Math.floor(step);
                     current += step;
@@ -152,7 +154,6 @@
                 height: 12%;
                 background-color: rgba(0, 0, 0, 0.8);
                 text-align: center;
-                transition:all 1s;
                 color: white;`,
             _pic = `left: 0;
                 top: 0;
@@ -247,13 +248,17 @@
             content_event: function() {
                 S.onmouseover = () => {
                     clearInterval(timer);
-                    btn_l.style.left = 0;
-                    btn_r.style.right = 0;
+                    _(btn_l).animate({ left: '0%' }, 200);
+                    _(btn_r).animate({ right: '0%' }, 200);
+                    // btn_l.style.left = 0;
+                    // btn_r.style.right = 0;
                 };
                 S.onmouseleave = () => {
                     timer = this.auto(this.autoplay);
-                    btn_l.style.left = '-10%';
-                    btn_r.style.right = '-10%';
+                    _(btn_l).animate({ left: '-10%' }, 200);
+                    _(btn_r).animate({ right: '-10%' }, 200);
+                    // btn_l.style.left = '-10%';
+                    // btn_r.style.right = '-10%';
                 };
             },
             //圆点hover事件
