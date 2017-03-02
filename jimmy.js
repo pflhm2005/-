@@ -81,7 +81,13 @@
             for (var key in obj) {
                 var target = obj[key],
                     per = duration / 20,
-                    current = parseFloat(window.getComputedStyle(ele, null)[key]);
+                    current = window.getComputedStyle(ele, null)[key];
+                //由于10%-0的变化是合理的 但是0作为target无法进入百分比分支 添加判断
+                //getComputedStyle永远获取px属性 只能用style判断是否是百分比变化
+                if (~ele.style[key].indexOf('%')) {
+                    target += '%';
+                }
+                current = parseFloat(current);
                 //处理透明度
                 if (key === 'opacity') {
                     var step = ((target - current) / per) * 100;
@@ -93,6 +99,7 @@
                 //这个支持有问题 暂时不能用
                 //修复 但是duration是有问题的 
                 else if (target.indexOf('%')) {
+                    //获取定位父元素宽
                     ele.pWidth = ele.pWidth || parseFloat(this.getPositionPWidth(ele)[0]);
                     //因为后面要加%单位 这里要先乘以100 坑爹啊
                     //已经不知道怎么注释了 toFix返回的是字符串 只能这样强制获取2位小数
@@ -248,8 +255,8 @@
             content_event: function() {
                 S.onmouseover = () => {
                     clearInterval(timer);
-                    _(btn_l).animate({ left: '0%' }, 200);
-                    _(btn_r).animate({ right: '0%' }, 200);
+                    _(btn_l).animate({ left: 0 }, 200);
+                    _(btn_r).animate({ right: 0 }, 200);
                     // btn_l.style.left = 0;
                     // btn_r.style.right = 0;
                 };
