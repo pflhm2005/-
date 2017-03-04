@@ -26,9 +26,11 @@
 
     //初始化
     jimmy.fn.init = function(ele, ctx) {
+        //处理DOM节点
         if (ele.nodeType) {
             return this.push(ele);
         }
+        //快速匹配正则
         ele = rquickExpr.exec(ele);
         if (match = ele[1]) {
             return this.push(getId(match));
@@ -73,10 +75,12 @@
     })
 
     //动画函数
+    //由于函数构造原因 实际durantion会比设定长一些
     jimmy.fn.animate = function(obj, duration) {
         var ele = this[0];
         clearInterval(ele.timer);
         ele.timer = setInterval(() => {
+            //判断是否全部执行完毕
             var flag = true;
             for (var key in obj) {
                 var target = obj[key],
@@ -117,6 +121,7 @@
                     current += step;
                     ele.style[key] = current + 'px';
                 }
+                //循环过程中有一个未达到目标置false
                 if (target != current) {
                     flag = false;
                 }
@@ -183,7 +188,7 @@
 
         //构造函数
         function Slide() {
-
+            //参数处理
             this.width = isNaN(parseInt(_obj.width)) ? '600px' : parseInt(_obj.width);
             this.height = isNaN(parseInt(_obj.height)) ? '450px' : parseInt(_obj.height);
             this.arrow = _obj.arrow !== false;
@@ -224,7 +229,7 @@
                 btn_l.style = `${_btn}left: -10%;text-indent:-1px;font-size: ${this.height / per}px`;
                 btn_r.style = `${_btn}right:-10%;font-size:${this.height / per}px`;
 
-                //设定user-select:none 所以箭头看起来像字体图标 
+                //设定user-select:none 所以大于号和小于号看起来像字体图标 
                 btn_l.innerHTML = '\<';
                 btn_r.innerHTML = '\>';
 
