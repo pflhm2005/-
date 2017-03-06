@@ -31,15 +31,18 @@
             return this.push(ele);
         }
         //快速匹配正则
-        ele = rquickExpr.exec(ele);
-        if (match = ele[1]) {
-            return this.push(getId(match));
-        } else if (match = ele[2]) {
-            return this.merge(getTag(match));
-        } else if (match = ele[3]) {
-            return this.merge(getClass(match));
-        } else if ($.querySelectorAll) {
-            return this.merge(advSear(match));
+        if (rquickExpr.test(ele)) {
+            match = rquickExpr.exec(ele);
+            if (match = ele[1]) {
+                return this.push(getId(match));
+            } else if (match = ele[2]) {
+                return this.merge(getTag(match));
+            } else if (match = ele[3]) {
+                return this.merge(getClass(match));
+            }
+        }
+        if ($.querySelectorAll) {
+            return this.merge(advSear(ele));
         } else {
             return this;
         }
