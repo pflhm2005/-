@@ -33,11 +33,11 @@
         //快速匹配正则
         if (rquickExpr.test(ele)) {
             match = rquickExpr.exec(ele);
-            if (match = ele[1]) {
+            if (match = match[1]) {
                 return this.push(getId(match));
-            } else if (match = ele[2]) {
+            } else if (match = match[2]) {
                 return this.merge(getTag(match));
-            } else if (match = ele[3]) {
+            } else if (match = match[3]) {
                 return this.merge(getClass(match));
             }
         }
