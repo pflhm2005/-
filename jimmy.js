@@ -32,12 +32,12 @@
         }
         //快速匹配正则
         if (rquickExpr.test(ele)) {
-            match = rquickExpr.exec(ele);
-            if (match = match[1]) {
+            matches = rquickExpr.exec(ele);
+            if (match = matches[1]) {
                 return this.push(getId(match));
-            } else if (match = match[2]) {
+            } else if (match = matches[2]) {
                 return this.merge(getTag(match));
-            } else if (match = match[3]) {
+            } else if (match = matches[3]) {
                 return this.merge(getClass(match));
             }
         }
