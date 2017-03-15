@@ -26,6 +26,9 @@
 
     //初始化
     jimmy.fn.init = function(ele, ctx) {
+        if (!ele) {
+            return this;
+        }
         //处理DOM节点
         if (ele.nodeType) {
             return this.push(ele);
@@ -74,8 +77,51 @@
                 p = p.parentNode;
             }
             return [window.getComputedStyle(p).width, window.getComputedStyle(p).height];
+        },
+        css: function(name, pseudo = null) {
+            return window.getComputedStyle(this[0], pseudo)[name];
+        },
+        eq: function(index) {
+            var ret = this.constructor();
+            ret.push(this[index]);
+            return ret;
         }
-    })
+    });
+
+    jimmy.ajax = function(obj) {
+        if (!obj) {
+            return;
+        }
+        var url = obj.url,
+            method = obj.method.toLowerCase(),
+            fn = obj.fn,
+            data = obj.data,
+            Data = parseData(data);
+
+        function parseData(obj) {
+            var finalData = '';
+            for (var key in obj) {
+                finalData += key + '=' + obj[key] + '&';
+            }
+            return finalData.slice(0, -1);
+        };
+        var xhr = new XMLHttpRequest();
+        if (method === 'get') {
+            url = url + '?' + Data;
+            Data = null;
+        }
+        xhr.open(method, url);
+        if (method = 'post') {
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        }
+        xhr.send(Data);
+        xhr.onreadystatechange = function() {
+            if (xhr.status == 200 && xhr.readyState == 4) {
+                var result = xhr.responseText;
+                fn(result);
+            }
+        };
+    };
 
     //动画函数
     //由于函数构造原因 实际durantion会比设定长一些
