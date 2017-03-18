@@ -151,7 +151,7 @@
                 //处理百分比
                 //这个支持有问题 暂时不能用
                 //修复 但是duration是有问题的 
-                else if (target.indexOf('%')) {
+                else if (~target.indexOf('%')) {
                     //获取定位父元素宽
                     ele.pWidth = ele.pWidth || parseFloat(this.getPositionPWidth(ele)[0]);
                     //因为后面要加%单位 这里要先乘以100 坑爹啊
@@ -165,6 +165,7 @@
                 }
                 //处理px单位 
                 else {
+                    target = parseInt(target);
                     var step = (target - current) / per;
                     step = target - current > 0 ? Math.ceil(step) : Math.floor(step);
                     current += step;
