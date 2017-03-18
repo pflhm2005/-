@@ -74,6 +74,9 @@
         getPositionPWidth: function(ele) {
             var p = ele.parentNode;
             while (!this.isPosition(window.getComputedStyle(p).position)) {
+                if (p.tagName === 'BODY') {
+                    break;
+                }
                 p = p.parentNode;
             }
             return [window.getComputedStyle(p).width, window.getComputedStyle(p).height];
@@ -137,7 +140,7 @@
                     current = window.getComputedStyle(ele, null)[key];
                 //由于10%-0的变化是合理的 但是0作为target无法进入百分比分支 添加判断
                 //getComputedStyle永远获取px属性 只能用style判断是否是百分比变化
-                if (~ele.style[key].indexOf('%')) {
+                if (~ele.style[key].indexOf('%') && target === 0) {
                     target += '%';
                 }
                 current = parseFloat(current);
@@ -151,6 +154,7 @@
                 //处理百分比
                 //这个支持有问题 暂时不能用
                 //修复 但是duration是有问题的 
+                //仅处理宽度
                 else if (~target.indexOf('%')) {
                     //获取定位父元素宽
                     ele.pWidth = ele.pWidth || parseFloat(this.getPositionPWidth(ele)[0]);
