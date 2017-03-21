@@ -73,10 +73,7 @@
         //获取第一个定位父元素宽高
         getPositionPWidth: function(ele) {
             var p = ele.parentNode;
-            while (!this.isPosition(window.getComputedStyle(p).position)) {
-                if (p.tagName === 'BODY') {
-                    break;
-                }
+            while (!this.isPosition(window.getComputedStyle(p).position) && p.tagName !== 'BODY') {
                 p = p.parentNode;
             }
             return [window.getComputedStyle(p).width, window.getComputedStyle(p).height];
@@ -127,6 +124,7 @@
     };
 
     //动画函数
+    //这个函数特别烂 慎用
     //由于函数构造原因 实际durantion会比设定长一些
     jimmy.fn.animate = function(obj, duration) {
         var ele = this[0];
