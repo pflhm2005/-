@@ -18,8 +18,9 @@
 
     //超简单扩展函数
     jimmy.fn.extend = function(o1, o2) {
+        var o2 = o2 || this;
         for (var key in o1) {
-            this[key] = o1[key];
+            o2[key] = o1[key];
         }
         return this;
     };
