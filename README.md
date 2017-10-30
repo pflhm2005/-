@@ -1,60 +1,9 @@
-# 自己尝试用原生JS写点什么
-- 目前这里有一个原生js的轮播图插件 顺便支持支持简易选择符
-
-- html格式如下：
-
-```html
-  <div id="div">
-          <div></div>
-          <div></div>
-          <div></div>
-          <div>
-              <img src="image/01.jpg">
-              <img src="image/02.jpg">
-              <img src="image/03.jpg">
-          </div>
-  </div>
-```
 
 
+# 说明
 
-- JS调用方式如下：
-
-  ```javascript
-  //可以使用_('.div')、_('div)，但是必须保证选取的节点唯一
-  _('#div').slide();
-  ```
-
-
-
-
-- 支持5个参数，以对象形式传入：
-  ​
-  ```javascript
-  //示例
-  _('#div').slide({
-    //轮播区域宽高
-    widht:'500px',	
-    height:'500px',
-    //设定是否自动轮播或自动轮播时间(ms)
-    autoplay:false,
-    dot:true,
-    arrow:true
-  });
-  ```
-
-
-
--   新造animate轮子
-
-```javascript
-//示例 时间上有一些不平滑 函数写的不太好 只能先这样了
-_('#div').animate({
-  {opacity:1,left:10%}
-},1000)
-```
-
-
-
-
-- jQuery的版本代码比较好看
+- 这里有一些以前自己封装的小玩意和工作中封装的组件
+- slide3.js为jquery版本的轮播图
+- jimmy.js为原生js写的轮播图
+- upload.vue是element-ui组件el-upload的二级封装
+- Jimmy_table.vue是为了应付特殊而变态的表格需求自己封装的
