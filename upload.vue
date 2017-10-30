@@ -21,14 +21,14 @@
             return {
                 hide_class:'',
                 isMax:false,
-                action:'/merchant/Upload/upload',
+                action:'',
             }
         },
         props: [
-            'title',
-            'list',
-            'index',
-            'num',
+            'title',    // 标题
+            'list', // 已上传图片集合
+            'index',    // 索引
+            'num',  // 上传上限
             'delMode', // true为关闭提示功能
         ],
         computed:{
@@ -75,6 +75,7 @@
                 this.$emit('upload_suc',file,fileList,this.index);
             },
             progress:function(){
+                // 由于上传过程与上限判断存在时间差 一次仅允许上传一张
                 this.isMax = true;
             }
         },created:function(){
