@@ -92,4 +92,7 @@
             color: #333;
         }
     }
+    .hide{
+        display:none !important;
+    }
 </style>
