@@ -36,6 +36,9 @@ export default {
             items:[],
             itemIter:null,
             map:{},
+            prev_index:null,
+            red_marker_el:[],
+            blue_marker_el:[]
         }
     },
     methods:{
@@ -43,19 +46,38 @@ export default {
             return 'background-position:-5.5px ' +(-27.5 + -25.5 * i) + 'px';
         },
         generateIconMarker(obj,i){
-            var marker = new BMap.Marker(new BMap.Point(obj.lng, obj.lat), {
-                icon: new BMap.Icon(obj.url, new BMap.Size(20, 26),{
-                    offset: new BMap.Size(11, 26),
-                    imageOffset: new BMap.Size(-5, -27.5 - i * 25.5)
-                })
-            });
+            var marker = this.generateRedIcon(obj,i),
+                marker_hide = this.generateBlueIcon(obj,i),
+                self = this;
 
             marker.addEventListener('click',function(){
-                var tarEl =  $('.map-item-list').eq($(event.target).index()-1);
+                let i = $(event.target).index() / 2;
+                if(self.prev_index === null){
+                    self.prev_index = i-1;
+                } else{
+                    self.red_marker_el[self.prev_index].show();
+                    self.blue_marker_el[self.prev_index].hide();
+                    self.prev_index = i-1;
+                }
+                
+                var tarEl =  $('.map-item-list').eq(i-1);
+
+                // 地图点重绘
+                this.hide();
+
+                self.blue_marker_el[i-1].show();
+
+                // 变色
+                tarEl.children().eq(0).css('backgroundPositionX','-24.5px');
+                tarEl.siblings().each((i,v)=>{
+                    $(v).children().eq(0).css('backgroundPositionX','-5.5px');
+                });
                 tarEl.addClass('on').siblings().removeClass('on');
+
+                // 滑动
                 var outerScroll = $('#map-content')[0].offsetTop;
                 
-                var HEIGHT = 459,
+                var HEIGHT = 333,
                     view_scroll_len = $('#result').scrollTop(),
                     cur_tar_scroll = tarEl[0].offsetTop - outerScroll - 41,
                     el_len = tarEl[0].clientHeight;
@@ -69,7 +91,29 @@ export default {
                     $('#result').animate({scrollTop:cur_tar_scroll});
                 }
             });
+
+            marker_hide.hide();
+
+            this.blue_marker_el.push(marker_hide);
+            this.red_marker_el.push(marker);
+            this.map.addOverlay(marker_hide);
             this.map.addOverlay(marker);
+        },
+        generateRedIcon(obj,i){
+            return new BMap.Marker(new BMap.Point(obj.lng, obj.lat), {
+                icon: new BMap.Icon(obj.url, new BMap.Size(18, 26),{
+                    offset: new BMap.Size(10, 26),
+                    imageOffset: new BMap.Size(-7, -27.5 - i * 25.5)
+                })
+            });
+        },
+        generateBlueIcon(obj,i){
+            return new BMap.Marker(new BMap.Point(obj.lng, obj.lat), {
+                icon: new BMap.Icon(obj.url, new BMap.Size(20, 26),{
+                    offset: new BMap.Size(10, 26),
+                    imageOffset: new BMap.Size(-24.5, -27.5 - i * 25.5)
+                })
+            });
         }
     },
     mounted(){
@@ -84,8 +128,8 @@ export default {
         map.addControl(new BMap.ScaleControl());
         // 圆圈
         var circle = new BMap.Circle(ROOT_POINT, 500, {
-            fillColor: "white",
-            strokeColor: "blue",
+            fillColor: '#fff',
+            strokeColor: "#80bfde",
             strokeWeight: 2,
             strokeOpacity: 0.1,
             enableMassClear:false,
@@ -110,6 +154,8 @@ export default {
                 // 判断状态是否正确
                 if (local.getStatus() == BMAP_STATUS_SUCCESS) {
                     var rsl = results.vr;
+                    this.red_marker_el = [];
+                    this.blue_marker_el = [];
                     rsl.forEach((el,i) => {
                         this.generateIconMarker({
                             lat:el.point.lat,
@@ -139,31 +185,30 @@ export default {
 <style lang="less">
     // 地图
     #map-content {
-        margin-top: 20px;
-        height: 500px;
-        width: 48.5%;
+        height: 372px;
+        width: 602px;
         float: left;
     }
 
     // 地图上方按钮
     .btn-list {
-        margin-top: 20px;
-        height: 500px;
+        height: 372px;
         float: left;
-        width: 500px;
+        width: 378px;
         .btn-items {
             overflow: hidden;
             width: 100%;
             text-align: center;
             p {
                 float: left;
-                padding: 10px;
+                padding: 10px 5px;
                 width: 16.6%;
+                font-size: 14px;
                 background-color: #f1f1f1;
                 cursor: pointer;
                 &.on{
                     background-color: #fff;
-                    color:#f1b500;
+                    color:#88ba4a;
                 }
             }
         }
@@ -208,7 +253,7 @@ export default {
 
     // 地图数据显示
     #result {
-        height: 459px;
+        height: 333px;
         transition: all .5s;
         overflow: auto;
         .map-items {
@@ -244,7 +289,7 @@ export default {
             margin-top: 10px;
             line-height: 20px;
             text-align: center;
-            background:url('../../assets/order.png') no-repeat;
+            background:url('./order.png') no-repeat;
         }
         .map-item-text{
             float: left;
