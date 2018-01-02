@@ -6,13 +6,13 @@
                 <p class='filter-item' key-word="地铁站,公交站">公交站</p>
                 <p class='filter-item'>学校</p>
                 <p class='filter-item'>医疗</p>
-                <p class='filter-item'>商超</p>
+                <p class='filter-item'>商场</p>
                 <p class='filter-item'>生活</p>
                 <p class='filter-item'>其他</p>
             </div>
             <div id="result">
                 <div class="map-items">
-                    <div class="map-item-list" v-for="(item,index) in items" :class='{on:itemIter == index}' @click='itemIter = index' :key='index'>
+                    <div class="map-item-list" v-for="(item,index) in items" :class='{on:itemIter == index}' @click='markerChange(index)' :key='index'>
                         <i class='map-item-icon' :style='styleObj(index)'></i>
                         <div class="map-item-text">
                             <p class='map-item-title'>
@@ -41,55 +41,61 @@ export default {
             blue_marker_el:[]
         }
     },
+    props:['point'],
     methods:{
         styleObj(i){
             return 'background-position:-5.5px ' +(-27.5 + -25.5 * i) + 'px';
         },
+        markerChange(i){
+            this.itemIter = i;
+            this.emitChangeEvent(i+1);
+        },
+        emitChangeEvent(i){
+            if(this.prev_index === null){
+                this.prev_index = i-1;
+            } else{
+                this.red_marker_el[this.prev_index].show();
+                this.blue_marker_el[this.prev_index].hide();
+                this.prev_index = i-1;
+            }
+            var tarEl =  $('.map-item-list').eq(i-1);
+
+            // 地图点重绘
+            this.red_marker_el[i-1].hide();
+            this.blue_marker_el[i-1].show();
+
+            // 变色
+            tarEl.children().eq(0).css('backgroundPositionX','-24.5px');
+            tarEl.siblings().each((i,v)=>{
+                $(v).children().eq(0).css('backgroundPositionX','-5.5px');
+            });
+            tarEl.addClass('on').siblings().removeClass('on');
+            // 滑动
+            var outerScroll = $('#map-content')[0].offsetTop;
+            
+            var HEIGHT = 333,
+                view_scroll_len = $('#result').scrollTop(),
+                cur_tar_scroll = tarEl[0].offsetTop - outerScroll - 41,
+                el_len = tarEl[0].clientHeight;
+            
+            // 向下滚动逻辑
+            if(cur_tar_scroll + el_len > HEIGHT + view_scroll_len){
+                $('#result').animate({scrollTop:cur_tar_scroll + el_len - HEIGHT});
+            }
+            // 向上滚动逻辑
+            if(cur_tar_scroll < view_scroll_len){
+                $('#result').animate({scrollTop:cur_tar_scroll});
+            }
+        },
         generateIconMarker(obj,i){
             var marker = this.generateRedIcon(obj,i),
-                marker_hide = this.generateBlueIcon(obj,i),
-                self = this;
+                marker_hide = this.generateBlueIcon(obj,i);
 
-            marker.addEventListener('click',function(){
-                let i = $(event.target).index() / 2;
-                if(self.prev_index === null){
-                    self.prev_index = i-1;
-                } else{
-                    self.red_marker_el[self.prev_index].show();
-                    self.blue_marker_el[self.prev_index].hide();
-                    self.prev_index = i-1;
-                }
+            marker.addEventListener('click',(evnet)=>{
+                console.clear();
+                let i = Math.floor(($(event.target).index()+1) / 2);
                 
-                var tarEl =  $('.map-item-list').eq(i-1);
-
-                // 地图点重绘
-                this.hide();
-
-                self.blue_marker_el[i-1].show();
-
-                // 变色
-                tarEl.children().eq(0).css('backgroundPositionX','-24.5px');
-                tarEl.siblings().each((i,v)=>{
-                    $(v).children().eq(0).css('backgroundPositionX','-5.5px');
-                });
-                tarEl.addClass('on').siblings().removeClass('on');
-
-                // 滑动
-                var outerScroll = $('#map-content')[0].offsetTop;
-                
-                var HEIGHT = 333,
-                    view_scroll_len = $('#result').scrollTop(),
-                    cur_tar_scroll = tarEl[0].offsetTop - outerScroll - 41,
-                    el_len = tarEl[0].clientHeight;
-                
-                // 向下滚动逻辑
-                if(cur_tar_scroll + el_len > HEIGHT + view_scroll_len){
-                    $('#result').animate({scrollTop:cur_tar_scroll + el_len - HEIGHT});
-                }
-                // 向上滚动逻辑
-                if(cur_tar_scroll < view_scroll_len){
-                    $('#result').animate({scrollTop:cur_tar_scroll});
-                }
+                this.emitChangeEvent(i);
             });
 
             marker_hide.hide();
@@ -122,10 +128,11 @@ export default {
             enableMapClick: false
         });
         this.map = map;
-        var ROOT_POINT = new BMap.Point(113.9492, 22.508);
+        var ROOT_POINT = new BMap.Point(this.point[0], this.point[1]);
         map.centerAndZoom(ROOT_POINT, 16);
         map.addControl(new BMap.NavigationControl());
         map.addControl(new BMap.ScaleControl());
+        map.enableScrollWheelZoom();
         // 圆圈
         var circle = new BMap.Circle(ROOT_POINT, 500, {
             fillColor: '#fff',
@@ -137,8 +144,8 @@ export default {
         map.addOverlay(circle);
         // 自定义中心点
         var marker = new BMap.Marker(ROOT_POINT, {
-            icon: new BMap.Icon("src/assets/gci03.png", new BMap.Size(30, 30), {
-                imageSize: new BMap.Size(30, 30)
+            icon: new BMap.Icon(require("../../assets/poi.png"), new BMap.Size(20,20), {
+                imageSize: new BMap.Size(15, 20)
             }),
             enableClicking: false,
             enableMassClear:false,
@@ -150,17 +157,22 @@ export default {
                 autoViewport: false,
                 selectFirstResult: false
             },
-            onSearchComplete: (results) => {
+            onSearchComplete: (result) => {
                 // 判断状态是否正确
                 if (local.getStatus() == BMAP_STATUS_SUCCESS) {
-                    var rsl = results.vr;
+                    let len = result.getCurrentNumPois(),rsl = [];
+                    if(!len){return;}
+                    for(let i=0;i<len;i++){
+                        rsl.push(result.getPoi(i));
+                    }
                     this.red_marker_el = [];
                     this.blue_marker_el = [];
+                    
                     rsl.forEach((el,i) => {
                         this.generateIconMarker({
                             lat:el.point.lat,
                             lng:el.point.lng,
-                            url:'src/assets/order.png',
+                            url:require('../../assets/order.png'),
                         },i);
                         el.distance = (map.getDistance(ROOT_POINT,new BMap.Point(el.point.lng, el.point.lat)))|0;
                     });
@@ -289,7 +301,7 @@ export default {
             margin-top: 10px;
             line-height: 20px;
             text-align: center;
-            background:url('./order.png') no-repeat;
+            background:url('../../assets/order.png') no-repeat;
         }
         .map-item-text{
             float: left;
